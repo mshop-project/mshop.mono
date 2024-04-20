@@ -1,0 +1,15 @@
+[submodule "mshop.discounts"]
+    path = mshop.discounts
+    url = https://github.com/mshop-project/mshop.discounts
+
+[submodule "mshop.gateway"]
+    path = mshop.gateway
+    url = https://github.com/mshop-project/mshop.gateway
+
+[submodule "mshop.orders"]
+    path = mshop.orders
+    url = https://github.com/mshop-project/mshop.orders
+
+[submodule "mshop.products"]
+    path = mshop.products
+    url = https://github.com/mshop-project/mshop.products
