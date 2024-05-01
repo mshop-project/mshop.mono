@@ -39,7 +39,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "mshop.products.infrastructu
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "bootstrapper", "bootstrapper", "{1ED2603C-CCC1-49F6-896F-8C2A986EAACF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "mshop.boostrapper", "mshop.boostrapper\mshop.boostrapper.csproj", "{56A69C4C-B5B5-4A6C-9908-318B8811587A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "mshop.bootstrapper", "mshop.bootstrapper\mshop.bootstrapper.csproj", "{56A69C4C-B5B5-4A6C-9908-318B8811587A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
