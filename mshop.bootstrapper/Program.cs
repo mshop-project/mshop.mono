@@ -21,10 +21,17 @@ builder.Services.AddMassTransit(busConfigurator =>
     busConfigurator.AddOrdersBusConfig();
     busConfigurator.AddProductsBusConfig();
 
-    busConfigurator.UsingInMemory(
-        (context, config) =>
-                config.ConfigureEndpoints(context)
-    );
+
+    busConfigurator.UsingRabbitMq((context, config) =>
+    {
+        config.Host("localhost", "/", hostConfigurator =>
+        {
+            hostConfigurator.Username("guest");
+            hostConfigurator.Password("guest");
+        });
+
+        config.ConfigureEndpoints(context);
+    });
 });
 
 builder.Services.AddControllers();
