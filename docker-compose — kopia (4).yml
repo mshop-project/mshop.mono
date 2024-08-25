@@ -1,0 +1,121 @@
+version: '3.7'
+
+services:
+  mshop.bootstrapper:
+    build:
+      context: ./mshopbackend
+      dockerfile: mshop.bootstrapper/Dockerfile
+    container_name: mshop_modularmonolith
+    restart: always
+    networks:
+      - mshop-network
+    ports:
+      - "5000:8080" 
+
+  mshop.discounts.api:
+    build:
+      context: ./mshopbackend
+      dockerfile: mshop.discounts/mshop.discounts.api/Dockerfile
+    container_name: mshop_discounts_api_microservice
+    restart: always
+    networks:
+      - mshop-network
+
+  mshop.gateway.api:
+    build:
+      context: ./mshopbackend
+      dockerfile: mshop.gateway/mshop.gateway.api/Dockerfile
+    container_name: mshop_gateway
+    restart: always
+    networks:
+      - mshop-network
+    ports:
+      - "5001:8080"
+
+  mshop.orders.api:
+    build:
+      context: ./mshopbackend
+      dockerfile: mshop.orders/mshop.orders.api/Dockerfile
+    container_name: mshop_orders_api_microservice
+    restart: always
+    networks:
+      - mshop-network
+
+  mshop.products.api:
+    build:
+      context: ./mshopbackend
+      dockerfile: mshop.products/mshop.products.api/Dockerfile
+    container_name: mshop_products_api_microservice
+    restart: always
+    networks:
+      - mshop-network
+
+  mshop.products.api2:
+    build:
+      context: ./mshopbackend
+      dockerfile: mshop.products/mshop.products.api/Dockerfile
+    container_name: mshop_products_api_microservice2
+    restart: always
+    networks:
+      - mshop-network
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    restart: always
+    environment:
+      RABBITMQ_DEFAULT_USER: "guest"
+      RABBITMQ_DEFAULT_PASS: "guest"
+      RABBITMQ_NODENAME: "rabbitNode"
+    ports:
+      - 5672:5672
+      - 15672:15672
+    networks:
+      - mshop-network
+
+  mongodb:
+    image: mongo:latest
+    container_name: mongodb
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: password
+    ports:
+      - 27017:27017
+    volumes:
+      - mongodb_data_container:/data/db
+    networks:
+      - mshop-network
+
+  postgresdb:
+    image: postgres
+    container_name: postgresdb
+    restart: always
+    ports:
+      - ${POSTGRES_PORT}:5432
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - mshop-network
+
+  consul:
+    image: hashicorp/consul:latest
+    container_name: mshop_consul
+    restart: always
+    ports:
+      - 8500:8500
+    networks:
+      - mshop-network
+    
+
+networks:
+  mshop-network:
+    driver: bridge
+
+volumes:
+  mongodb_data_container:
+  pgdata:
+  pgadmin-data:
+  grafana_data:

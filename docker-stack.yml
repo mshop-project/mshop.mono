@@ -1,0 +1,133 @@
+version: '3.7'
+
+services:
+  mshop-bootstrapper:
+    image: ktosi/mshop.bootstrapper:latest
+    build:
+      context: ./mshopbackend
+      dockerfile: mshop.bootstrapper/Dockerfile
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: any
+    networks:
+      - mshop-network
+    ports:
+      - "5000:8080"
+
+  mshop-discounts-api:
+    image: mshop_discounts_api_microservice
+    build:
+      context: ./mshopbackend
+      dockerfile: mshop.discounts/mshop.discounts.api/Dockerfile
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: any
+    networks:
+      - mshop-network
+
+  mshop-gateway-api:
+    image: ktosi/mshop_gateway:latest
+    build:
+      context: ./mshopbackend
+      dockerfile: mshop.gateway/mshop.gateway.api/Dockerfile
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: any
+    networks:
+      - mshop-network
+    ports:
+      - "5001:8080"
+
+  mshop-orders-api:
+    image: ktosi/mshop_orders_api_microservice:latest
+    build:
+      context: ./mshopbackend
+      dockerfile: mshop.orders/mshop.orders.api/Dockerfile
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: any
+    networks:
+      - mshop-network
+
+  mshop-products-api:
+    image: ktosi/mshop_products_api_microservice:latest
+    build:
+      context: ./mshopbackend
+      dockerfile: mshop.products/mshop.products.api/Dockerfile
+    deploy:
+      replicas: 2
+      restart_policy:
+        condition: any
+    networks:
+      - mshop-network
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: any
+    environment:
+      RABBITMQ_DEFAULT_USER: "guest"
+      RABBITMQ_DEFAULT_PASS: "guest"
+      RABBITMQ_NODENAME: "rabbitNode"
+    ports:
+      - 5672:5672
+      - 15672:15672
+    networks:
+      - mshop-network
+
+  mongodb:
+    image: mongo:latest
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: any
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: password
+    ports:
+      - 27017:27017
+    volumes:
+      - mongodb_data_container:/data/db
+    networks:
+      - mshop-network
+
+  postgresdb:
+    image: postgres
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: any
+    ports:
+      - ${POSTGRES_PORT}:5432
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - mshop-network
+
+  consul:
+    image: hashicorp/consul:latest
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: any
+    ports:
+      - 8500:8500
+    networks:
+      - mshop-network
+
+networks:
+  mshop-network:
+    driver: overlay
+
+volumes:
+  mongodb_data_container:
+  pgdata:

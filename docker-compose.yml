@@ -1,0 +1,36 @@
+version: '3.4'
+
+services:
+  mshop.bootstrapper:
+    image: ${DOCKER_REGISTRY-}mshopbootstrapper
+    build:
+      context: .
+      dockerfile: mshop.bootstrapper/Dockerfile
+
+  mshop.discounts.api:
+    image: ${DOCKER_REGISTRY-}mshopdiscountsapi
+    build:
+      context: .
+      dockerfile: mshop.discounts/mshop.discounts.api/Dockerfile
+
+
+  mshop.gateway.api:
+    image: ${DOCKER_REGISTRY-}mshopgatewayapi
+    build:
+      context: .
+      dockerfile: mshop.gateway/mshop.gateway.api/Dockerfile
+
+
+  mshop.orders.api:
+    image: ${DOCKER_REGISTRY-}mshopordersapi
+    build:
+      context: .
+      dockerfile: mshop.orders/mshop.orders.api/Dockerfile
+
+
+  mshop.products.api:
+    image: ${DOCKER_REGISTRY-}mshopproductsapi
+    build:
+      context: .
+      dockerfile: mshop.products/mshop.products.api/Dockerfile
+

@@ -1,0 +1,15 @@
+{
+  "profiles": {
+    "Docker Compose": {
+      "commandName": "DockerCompose",
+      "commandVersion": "1.0",
+      "serviceActions": {
+        "mshop.bootstrapper": "StartWithoutDebugging",
+        "mshop.discounts.api": "StartWithoutDebugging",
+        "mshop.gateway.api": "StartWithoutDebugging",
+        "mshop.orders.api": "StartWithoutDebugging",
+        "mshop.products.api": "StartWithoutDebugging"
+      }
+    }
+  }
+}

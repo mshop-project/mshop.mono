@@ -24,7 +24,7 @@ builder.Services.AddMassTransit(busConfigurator =>
 
     busConfigurator.UsingRabbitMq((context, config) =>
     {
-        config.Host("localhost", "/", hostConfigurator =>
+        config.Host("rabbitmq", "/", hostConfigurator =>
         {
             hostConfigurator.Username("guest");
             hostConfigurator.Password("guest");
@@ -52,12 +52,8 @@ var app = builder.Build();
 app.UseCors("CORS");
 
 // Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
     app.UseSwagger();
     app.UseSwaggerUI();
-}
-
 
 app.UseHttpsRedirection();
 
