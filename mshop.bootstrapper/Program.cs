@@ -13,6 +13,18 @@ builder.Services
     .AddDiscountExtensions(builder.Configuration)
     .AddProductsExtensions(builder.Configuration);
 
+/*builder.Services.AddMassTransit(busConfigurator =>
+{
+    busConfigurator.SetKebabCaseEndpointNameFormatter();
+
+    busConfigurator.AddOrdersBusConfig();
+    busConfigurator.AddProductsBusConfig();
+
+    busConfigurator.UsingInMemory((context, config) =>
+    {
+        config.ConfigureEndpoints(context);
+    });
+});*/
 
 builder.Services.AddMassTransit(busConfigurator =>
 {
