@@ -1,22 +1,38 @@
 version: '3.7'
 
 services:
-  mshop-bootstrapper:
-    image: ktosi/mshop.bootstrapper:latest
-    build:
-      context: ./mshopbackend
-      dockerfile: mshop.bootstrapper/Dockerfile
-    deploy:
-      replicas: 1
-      restart_policy:
-        condition: any
-    networks:
-      - mshop-network
-    ports:
-      - "5000:8080"
+  # mshop-bootstrapper:
+  #   image: ktosi/mshop.bootstrapper:latest
+  #   build:
+  #     context: ./mshopbackend
+  #     dockerfile: mshop.bootstrapper/Dockerfile
+
+  #   networks:
+  #     - mshop-network
+  #   ports:
+  #     - "5000:8080"
+  #   deploy:
+  #     replicas: 1
+  #     restart_policy:
+  #       condition: any
+
+
+  # mshop-gateway-api:
+  #   image: ktosi/mshop_gateway:latest
+  #   build:
+  #     context: ./mshopbackend
+  #     dockerfile: mshop.gateway/mshop.gateway.api/Dockerfile
+  #   deploy:
+  #     replicas: 1
+  #     restart_policy:
+  #       condition: any
+  #   networks:
+  #     - mshop-network
+  #   ports:
+  #     - "5001:8080"
 
   mshop-discounts-api:
-    image: mshop_discounts_api_microservice
+    image: ktosi/mshop_discounts_api_microservice:latest
     build:
       context: ./mshopbackend
       dockerfile: mshop.discounts/mshop.discounts.api/Dockerfile
@@ -26,20 +42,8 @@ services:
         condition: any
     networks:
       - mshop-network
-
-  mshop-gateway-api:
-    image: ktosi/mshop_gateway:latest
-    build:
-      context: ./mshopbackend
-      dockerfile: mshop.gateway/mshop.gateway.api/Dockerfile
-    deploy:
-      replicas: 1
-      restart_policy:
-        condition: any
-    networks:
-      - mshop-network
     ports:
-      - "5001:8080"
+      - "5002:8080"
 
   mshop-orders-api:
     image: ktosi/mshop_orders_api_microservice:latest
@@ -59,11 +63,13 @@ services:
       context: ./mshopbackend
       dockerfile: mshop.products/mshop.products.api/Dockerfile
     deploy:
-      replicas: 2
+      replicas: 1
       restart_policy:
         condition: any
     networks:
       - mshop-network
+    ports:
+      - "5003:8080"
 
   rabbitmq:
     image: rabbitmq:3-management
@@ -78,8 +84,32 @@ services:
     ports:
       - 5672:5672
       - 15672:15672
+      - 15692:15692
     networks:
       - mshop-network
+
+  # zookeeper:
+  #   image: confluentinc/cp-zookeeper:latest
+  #   ports:
+  #     - 2181:2181
+  #   environment:
+  #     ZOOKEEPER_CLIENT_PORT: 2181
+  #     ZOOKEEPER_TICK_TIME: 2000
+  #   networks:
+  #     - mshop-network
+
+  # kafka:
+  #   image: confluentinc/cp-kafka:latest
+  #   ports:
+  #     - 9092:9092 
+  #     - 29092:29092 
+  #   environment:
+  #     KAFKA_BROKER_ID: 1
+  #     KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+  #     KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,PLAINTEXT_HOST://localhost:29092
+  #     KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+  #   networks:
+  #     - mshop-network
 
   mongodb:
     image: mongo:latest
@@ -98,13 +128,14 @@ services:
       - mshop-network
 
   postgresdb:
-    image: postgres
+    image: postgres:16.4
+    command: -c 'max_connections=5000'
     deploy:
       replicas: 1
       restart_policy:
         condition: any
     ports:
-      - ${POSTGRES_PORT}:5432
+      - 5432:5432
     environment:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
@@ -112,15 +143,67 @@ services:
       - pgdata:/var/lib/postgresql/data
     networks:
       - mshop-network
+      
+  # consul:
+  #   image: hashicorp/consul:latest
+  #   deploy:
+  #     replicas: 1
+  #     restart_policy:
+  #       condition: any
+  #   ports:
+  #     - 8500:8500
+  #   networks:
+  #     - mshop-network
 
-  consul:
-    image: hashicorp/consul:latest
+  prometheus:
+    image: prom/prometheus:latest
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: any
+    volumes:
+      - prometheus_data:/prometheus
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+    ports:
+      - "9090:9090"
+    networks:
+      - mshop-network
+
+  grafana:
+    image: grafana/grafana:latest
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: any
+    volumes:
+      - grafana_data:/var/lib/grafana
+    ports:
+      - "3000:3000"
+    networks:
+      - mshop-network
+
+  cadvisor:
+    image: google/cadvisor:latest
     deploy:
       replicas: 1
       restart_policy:
         condition: any
     ports:
-      - 8500:8500
+      - 8091:8080
+    privileged: true
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:rw
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+    command:
+      - --housekeeping_interval=1s
+      - --global_housekeeping_interval=1s
+      - --max_housekeeping_interval=1s
+      - --enable_load_reader=true
+      
+    environment:
+      - GODEBUG=asyncpreemptoff=1
     networks:
       - mshop-network
 
@@ -131,3 +214,6 @@ networks:
 volumes:
   mongodb_data_container:
   pgdata:
+  grafana_data:
+  prometheus_data:
+
